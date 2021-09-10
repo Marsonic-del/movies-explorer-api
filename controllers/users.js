@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-// const { NotFoundError } = require('../errors/NotFoundError');
+const { NotFoundError } = require('../errors/NotFoundError');
 const { NotValidDataError } = require('../errors/NotValidDataError');
 const { ExistedEmailError } = require('../errors/ExistedEmailError');
 const { DefaultServerError } = require('../errors/DefaultServerError');
@@ -54,4 +54,39 @@ const login = (req, res, next) => {
     .catch(() => { throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword); })
     .catch(next);
 };
-module.exports = { createUser, login };
+
+const getUserInfo = (req, res, next) => {
+  const userId = req.user._id;
+  User.findById(userId)
+    .then((user) => {
+      res.send({ data: user });
+    })
+    .catch(() => { throw new DefaultServerError(errorMessages.defaultMessage500); })
+    .catch(next);
+};
+
+// Обновление даных пользователя
+const updateUser = (req, res, next) => {
+  const { name, email } = req.body;
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, email },
+    { new: true, runValidators: true, upsert: false },
+  )
+    .then((user) => {
+      if (!user) {
+        return next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        throw new NotValidDataError(errorMessages.usersMePatch400);
+      }
+      throw new DefaultServerError(errorMessages.defaultMessage500);
+    })
+    .catch(next);
+};
+module.exports = {
+  createUser, login, getUserInfo, updateUser,
+};

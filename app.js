@@ -1,11 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-// const routes = require('./routes');
+const route = require('./routes/index');
 // const validUrl = require('./utils/validUrl')
-const { login, createUser } = require('./controllers/users');
+// const { login, createUser } = require('./controllers/users');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 require('dotenv').config();
 
@@ -24,20 +23,7 @@ mongoose.connect('mongodb://localhost:27017/bitfilmsdb', {
 
 app.use(requestLogger); // подключаем логгер запросов
 
-app.post('/signup', /*require('./middlewares/cors'),*/ celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-    name: Joi.string().min(2).max(30),
-  }),
-}), createUser);
-
-app.post('/signin', /*require('./middlewares/cors'),*/ celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
+app.use(route);
 
 app.use(errorLogger); // подключаем логгер ошибок
 
@@ -58,6 +44,5 @@ app.use((err, req, res, next) => {
         : message,
     });
 });
-
 
 app.listen(PORT);
