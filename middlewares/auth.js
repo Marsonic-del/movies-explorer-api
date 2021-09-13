@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { ForbiddenError } = require('../errors/ForbiddenError');
+const { InvalidEmailOrPasswordError } = require('../errors/InvalidEmailOrPasswordError');
 require('dotenv').config();
 
 const { NODE_ENV, JWT_SECRET } = process.env;
@@ -7,7 +7,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return next(new ForbiddenError('Необходима авторизация'));
+    return next(new InvalidEmailOrPasswordError('Необходима авторизация'));
   }
   // извлечём токен
   const token = authorization.replace('Bearer ', '');
@@ -17,7 +17,7 @@ module.exports = (req, res, next) => {
     payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
   } catch (err) {
     // отправим ошибку, если не получилось
-    throw new ForbiddenError('Необходима авторизация');
+    return next(new InvalidEmailOrPasswordError('Необходима авторизация'));
   }
   req.user = payload; // записываем пейлоуд в объект запроса
 

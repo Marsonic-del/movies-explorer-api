@@ -31,25 +31,25 @@ const userSchema = new mongoose.Schema({
 
 // добавим метод findUserByCredentials схеме пользователя
 // у него будет два параметра — почта и пароль
-// eslint-disable-next-line func-names
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function (email, password, next) {
   // попытаемся найти пользовател по почте
   return this.findOne({ email }).select('+password') // this — это модель User
     .then((user) => {
       // не нашёлся — отклоняем промис
       if (!user) {
-        throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword);
+        return next(new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword));
       }
 
       // нашёлся — сравниваем хеши
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword);
+            return next(new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword));
           }
           return user;
         });
-    });
+    })
+    .catch((err) => next(err));
 };
 
 module.exports = mongoose.model('user', userSchema);

@@ -4,7 +4,7 @@ const User = require('../models/user');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { NotValidDataError } = require('../errors/NotValidDataError');
 const { ExistedEmailError } = require('../errors/ExistedEmailError');
-const { DefaultServerError } = require('../errors/DefaultServerError');
+// const { DefaultServerError } = require('../errors/DefaultServerError');
 const { InvalidEmailOrPasswordError } = require('../errors/InvalidEmailOrPasswordError');
 require('dotenv').config();
 
@@ -24,23 +24,20 @@ const createUser = (req, res, next) => {
       User.create({
         name, email, password: hash,
       })
-        .then((user) => {
-          // eslint-disable-next-line no-param-reassign
-          user = user.toObject();
-          // eslint-disable-next-line no-param-reassign
+        .then((data) => {
+          const user = data.toObject();
           delete user.password;
           res.send(user);
         })
         .catch((err) => {
           if (err.name === 'ValidationError') {
-            throw new NotValidDataError(errorMessages.usersPost400);
+            return next(new NotValidDataError(errorMessages.usersPost400));
           }
           if (err.name === 'MongoError' && err.code === 11000) {
-            throw new ExistedEmailError(errorMessages.notValidEmail409);
+            return next(new ExistedEmailError(errorMessages.notValidEmail409));
           }
-          throw new DefaultServerError(errorMessages.defaultMessage500);
-        })
-        .catch(next);
+          return next(err);
+        });
     });
 };
 
@@ -51,7 +48,9 @@ const login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
       res.send({ token });
     })
-    .catch(() => { throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword); })
+    .catch(() => {
+      throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword);
+    })
     .catch(next);
 };
 
@@ -59,10 +58,12 @@ const getUserInfo = (req, res, next) => {
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
-      res.send({ data: user });
+      if (!user) {
+        return next(new NotFoundError('Нет пользователя с таким id'));
+      }
+      return res.send({ data: user });
     })
-    .catch(() => { throw new DefaultServerError(errorMessages.defaultMessage500); })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
 // Обновление даных пользователя
@@ -81,11 +82,13 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
-        throw new NotValidDataError(errorMessages.usersMePatch400);
+        return next(new NotValidDataError(errorMessages.usersMePatch400));
       }
-      throw new DefaultServerError(errorMessages.defaultMessage500);
-    })
-    .catch(next);
+      if (err.name === 'MongoError' && err.code === 11000) {
+        return next(new ExistedEmailError(errorMessages.notValidEmail409));
+      }
+      return next(err);
+    });
 };
 module.exports = {
   createUser, login, getUserInfo, updateUser,

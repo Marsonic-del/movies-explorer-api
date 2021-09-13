@@ -1,7 +1,7 @@
 const Movie = require('../models/movie');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { NotValidDataError } = require('../errors/NotValidDataError');
-const { DefaultServerError } = require('../errors/DefaultServerError');
+// const { DefaultServerError } = require('../errors/DefaultServerError');
 const { ForbiddenError } = require('../errors/ForbiddenError');
 const { errorMessages } = require('../utils/constants');
 
@@ -11,22 +11,20 @@ const createMovie = (req, res, next) => {
     .then((movie) => res.send({ data: movie }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new NotValidDataError(errorMessages.cardsPost400);
+        return next(new NotValidDataError(errorMessages.cardsPost400));
       }
-      throw new DefaultServerError(errorMessages.defaultMessage500);
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
 const getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
     .then((movie) => res.send({ data: movie }))
-    .catch(() => { throw new DefaultServerError(errorMessages.defaultMessage500); })
-    .catch(next);
+    .catch((err) => next(err));
 };
 
 const deleteMovie = (req, res, next) => {
-  Movie.findById(req.params.cardId)
+  Movie.findById(req.params.movieId)
     .then((movie) => {
       if (!movie) {
         return next(new NotFoundError(errorMessages.cardsDelete400));
@@ -34,22 +32,18 @@ const deleteMovie = (req, res, next) => {
       if (JSON.stringify(movie.owner) !== JSON.stringify(req.user._id)) {
         return next(new ForbiddenError(errorMessages.cardsDelete403));
       }
-      Movie.findByIdAndRemove(movie._id)
+      return Movie.findByIdAndRemove(movie._id)
         .then(() => {
           res.send({ message: 'Фильм удален' });
-        })
-        .catch(() => {
-          throw new DefaultServerError(errorMessages.defaultMessage500);
-        })
-        .catch(next);
+        });
+      // .catch((err) => next(err));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new NotValidDataError(errorMessages.cardsDelete400);
+        return next(new NotValidDataError(errorMessages.cardsDelete400));
       }
-      throw new DefaultServerError(errorMessages.defaultMessage500);
-    })
-    .catch(next);
+      return next(err);
+    });
 };
 
-module.exports = { createMovie, getMovies };
+module.exports = { createMovie, getMovies, deleteMovie };
