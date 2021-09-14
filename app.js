@@ -5,12 +5,8 @@ const mongoose = require('mongoose');
 const { errors } = require('celebrate');
 const route = require('./routes/index');
 const errorHandler = require('./middlewares/errorHandler');
-// const validUrl = require('./utils/validUrl')
-// const { login, createUser } = require('./controllers/users');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-require('dotenv').config();
-
-const { PORT, MONGO_URL } = process.env;
+const { PORT, MONGO_URL } = require('./utils/config');
 
 const app = express();
 app.use(bodyParser.json()); // для собирания JSON-формата

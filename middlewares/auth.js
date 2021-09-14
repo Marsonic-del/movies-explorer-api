@@ -1,8 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { InvalidEmailOrPasswordError } = require('../errors/InvalidEmailOrPasswordError');
-require('dotenv').config();
-
-const { NODE_ENV, JWT_SECRET } = process.env;
+const { JWT_SECRET } = require('../utils/config');
 
 module.exports = (req, res, next) => {
   const { authorization } = req.headers;
@@ -14,7 +12,7 @@ module.exports = (req, res, next) => {
   let payload;
   try {
     // попытаемся верифицировать токен
-    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+    payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
     // отправим ошибку, если не получилось
     return next(new InvalidEmailOrPasswordError('Необходима авторизация'));

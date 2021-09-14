@@ -6,13 +6,11 @@ const { NotValidDataError } = require('../errors/NotValidDataError');
 const { ExistedEmailError } = require('../errors/ExistedEmailError');
 // const { DefaultServerError } = require('../errors/DefaultServerError');
 const { InvalidEmailOrPasswordError } = require('../errors/InvalidEmailOrPasswordError');
-require('dotenv').config();
+const { JWT_SECRET } = require('../utils/config');
 
 const {
   errorMessages,
 } = require('../utils/constants');
-
-const { NODE_ENV, JWT_SECRET } = process.env;
 
 // Создание пользователя
 const createUser = (req, res, next) => {
@@ -45,7 +43,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret', { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
       res.send({ token });
     })
     .catch(() => {

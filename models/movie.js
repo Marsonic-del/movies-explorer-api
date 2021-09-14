@@ -27,7 +27,11 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return validator.isURL(v);
+        return validator.isURL(v, {
+          allow_protocol_relative_urls: true,
+          allow_underscores: true,
+          require_host: false,
+        });
       },
     },
   },
@@ -36,7 +40,11 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return validator.isURL(v);
+        return validator.isURL(v, {
+          allow_protocol_relative_urls: true,
+          allow_underscores: true,
+          require_host: false,
+        });
       },
     },
   },
@@ -45,7 +53,11 @@ const movieSchema = new mongoose.Schema({
     required: true,
     validate: {
       validator(v) {
-        return validator.isURL(v);
+        return validator.isURL(v, {
+          allow_protocol_relative_urls: true,
+          allow_underscores: true,
+          require_host: false,
+        });
       },
     },
   },
