@@ -5,7 +5,6 @@ const ERR_403 = 403;
 const ERR_404 = 404;
 const ERR_409 = 409;
 const ERR_500 = 500;
-const SECRET_KEY = 'some-secret-key';
 
 // Обьект с описанием ошибки
 const errorMessages = {
@@ -21,17 +20,13 @@ const errorMessages = {
 
   usersMePatch404: 'Пользователь с указанным _id не найден',
 
-  usersMeAvatarPatch400: 'Переданы некорректные данные при обновлении аватара',
-
   usersMeAvatarPatch404: 'Пользователь с указанным _id не найден',
 
-  cardsPost400: 'Переданы некорректные данные при создании карточки',
+  cardsPost400: 'Переданы некорректные данные при создании фильма',
 
-  cardsDelete400: 'Карточка с указанным _id не найдена',
+  cardsDelete400: 'Фильм с указанным _id не найден',
 
-  cardsDelete403: 'Вы не можете удалять чужые карточки',
-
-  cardsLikes400: 'Переданы некорректные данные для постановки/снятии лайка',
+  cardsDelete403: 'Вы не можете удалять чужые фильмы',
 
   defaultMessage500: 'Ошибка сервера',
 };
@@ -43,6 +38,5 @@ module.exports = {
   ERR_404,
   ERR_409,
   ERR_500,
-  SECRET_KEY,
   errorMessages,
 };
