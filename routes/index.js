@@ -6,8 +6,8 @@ const { login, createUser } = require('../controllers/users');
 const auth = require('../middlewares/auth');
 const { NotFoundError } = require('../errors/NotFoundError');
 
-route.post('/signup', /* require('./middlewares/cors'), */ validateUserBody, createUser);
-route.post('/signin', /* require('./middlewares/cors'), */ validateAuthentication, login);
+route.post('/signup', validateUserBody, createUser);
+route.post('/signin', validateAuthentication, login);
 route.use(auth);
 route.use('/users', userRouter);
 route.use('/movies', movieRouter);
