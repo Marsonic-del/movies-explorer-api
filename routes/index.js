@@ -7,14 +7,14 @@ const { login, createUser } = require('../controllers/users');
 const auth = require('../middlewares/auth');
 const { NotFoundError } = require('../errors/NotFoundError');
 
-/* const corsOptions = {
-  origin: ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster'],
+const corsOptions = {
+  origin: ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster', 'http://localhost:3000', 'https://localhost:3000'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   preflightContinue: false,
   optionsSuccessStatus: 204,
-}; */
+};
 
-const whitelist = ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster'];
+/* const whitelist = ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster', 'http://localhost:3000', 'https://localhost:3000'];
 const corsOptionsDelegate = function (req, callback) {
   let corsOptions;
   if (whitelist.indexOf(req.header('Origin')) !== -1) {
@@ -25,10 +25,10 @@ const corsOptionsDelegate = function (req, callback) {
     console.log('not allowed');
   }
   callback(null, corsOptions); // callback expects two parameters: error and options
-};
+}; */
 
-route.options('/signup', cors());
-route.post('/signup', validateUserBody, cors(), createUser);
+route.options('*', cors(corsOptions));
+route.post('/signup', validateUserBody, cors(corsOptions), createUser);
 route.post('/signin', validateAuthentication, login);
 route.use(auth);
 route.use('/users', userRouter);
