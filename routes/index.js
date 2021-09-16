@@ -29,10 +29,10 @@ const corsOptionsDelegate = function (req, callback) {
 
 route.options('*', cors(corsOptions));
 route.post('/signup', validateUserBody, cors(corsOptions), createUser);
-route.post('/signin', validateAuthentication, login);
+route.post('/signin', validateAuthentication, cors(corsOptions), login);
 route.use(auth);
-route.use('/users', userRouter);
-route.use('/movies', movieRouter);
+route.use('/users', cors(corsOptions), userRouter);
+route.use('/movies', cors(corsOptions), movieRouter);
 route.use((req, res, next) => next(new NotFoundError('Несуществующий маршрут')));
 
 module.exports = route;
