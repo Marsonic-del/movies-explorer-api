@@ -7,14 +7,25 @@ const { login, createUser } = require('../controllers/users');
 const auth = require('../middlewares/auth');
 const { NotFoundError } = require('../errors/NotFoundError');
 
-const corsOptions = {
+/* const corsOptions = {
   origin: ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
   preflightContinue: false,
   optionsSuccessStatus: 204,
+}; */
+
+const whitelist = ['https://kina-ne-budet.nomoredomains.monster', 'http://kina-ne-budet.nomoredomains.monster'];
+const corsOptionsDelegate = function (req, callback) {
+  let corsOptions;
+  if (whitelist.indexOf(req.header('Origin')) !== -1) {
+    corsOptions = { origin: true }; // reflect (enable) the requested origin in the CORS response
+  } else {
+    corsOptions = { origin: false }; // disable CORS for this request
+  }
+  callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
-route.post('/signup', cors(corsOptions), validateUserBody, createUser);
+route.post('/signup', cors(corsOptionsDelegate), validateUserBody, createUser);
 route.post('/signin', validateAuthentication, login);
 route.use(auth);
 route.use('/users', userRouter);
