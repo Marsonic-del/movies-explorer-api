@@ -27,7 +27,8 @@ const corsOptionsDelegate = function (req, callback) {
   callback(null, corsOptions); // callback expects two parameters: error and options
 };
 
-route.post('/signup', cors(corsOptionsDelegate), validateUserBody, createUser);
+route.options('/signup', cors());
+route.post('/signup', validateUserBody, cors(), createUser);
 route.post('/signin', validateAuthentication, login);
 route.use(auth);
 route.use('/users', userRouter);
