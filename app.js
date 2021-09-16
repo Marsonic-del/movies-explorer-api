@@ -23,7 +23,7 @@ mongoose.connect(MONGO_URL, {
 const corsOptions = {
   origin: '*',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE, OPTIONS',
-  preflightContinue: false,
+  preflightContinue: true,
   optionsSuccessStatus: 204,
 };
 
