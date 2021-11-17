@@ -44,7 +44,9 @@ const login = (req, res, next) => {
   User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: '7d' });
-      res.send({ token, user });
+      const userData = user.toObject();
+      delete userData.password;
+      res.send({ token, userData });
     })
     .catch(() => {
       throw new InvalidEmailOrPasswordError(errorMessages.notValidEmailOrPassword);
