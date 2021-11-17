@@ -78,7 +78,7 @@ const updateUser = (req, res, next) => {
       if (!user) {
         return next(new NotFoundError('Нет пользователя с таким id'));
       }
-      return res.send({ data: user });
+      return res.send({ userData: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
